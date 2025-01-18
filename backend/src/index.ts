@@ -47,7 +47,6 @@ app.get('/config-details', (req, res) => {
 app.post(
   BASE_PATH,
   asyncHandler(async (req: Request, res: Response) => {
-    throw new NotFoundException('Invalid request');
     const { name, email } = req.body;
     res.status(200).json({ name, email });
   }),
