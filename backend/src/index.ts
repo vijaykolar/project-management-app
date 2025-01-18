@@ -1,11 +1,15 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import express from 'express';
+import express, { Request, Response } from 'express';
 import morgan from 'morgan';
 import session from 'cookie-session';
 import cors from 'cors';
 
 import { config } from './config/app-config';
+import { connectDB } from './config/database-config';
+import { errorHandler } from './middlewares/error-handler';
+import { asyncHandler } from './middlewares/async-handler';
+import { NotFoundException } from './utils/AppError';
 
 //
 const BASE_PATH = config.BASE_PATH;
@@ -33,12 +37,24 @@ app.use(
   }),
 );
 
+app.use(errorHandler);
+
 // Routes
-app.get('/', (req, res) => {
-  res.send('Hello World');
+app.get('/config-details', (req, res) => {
+  res.send(config);
 });
 
+app.post(
+  BASE_PATH,
+  asyncHandler(async (req: Request, res: Response) => {
+    throw new NotFoundException('Invalid request');
+    const { name, email } = req.body;
+    res.status(200).json({ name, email });
+  }),
+);
+
 // Server
-app.listen(config.PORT, () => {
+app.listen(config.PORT, async () => {
   console.log(`Server is running on ${config.PORT} in ${config.NODE_ENV} mode`);
+  await connectDB();
 });
