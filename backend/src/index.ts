@@ -9,12 +9,15 @@ import { config } from './config/app-config';
 import { connectDB } from './config/database-config';
 import { errorHandler } from './middlewares/error-handler';
 import { asyncHandler } from './middlewares/async-handler';
-import { NotFoundException } from './utils/AppError';
 
-//
-const BASE_PATH = config.BASE_PATH;
+import './config/passport-config';
+import passport from 'passport';
+import { authRouter } from './routes/auth-route';
 
+// App
 const app = express();
+// Constants
+const BASE_PATH = config.BASE_PATH;
 
 // Middlewares
 app.use(morgan('dev'));
@@ -30,6 +33,10 @@ app.use(
     sameSite: 'lax',
   }),
 );
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(
   cors({
     origin: config.FRONTEND_ORIGIN,
@@ -43,6 +50,8 @@ app.use(errorHandler);
 app.get('/config-details', (req, res) => {
   res.send(config);
 });
+
+app.use(`${BASE_PATH}/auth`, authRouter);
 
 app.post(
   BASE_PATH,

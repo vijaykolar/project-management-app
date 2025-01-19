@@ -4,7 +4,7 @@ import { comparePassword, hashPassword } from '../utils/bcrypt';
 export interface UserDocument extends Document {
   name: string;
   email: string;
-  password: string;
+  password?: string;
   profilePicture: string;
   isActive: boolean;
   lastLogin: Date | null;
@@ -20,6 +20,7 @@ const userSchema = new Schema<UserDocument>(
     name: {
       type: String,
       required: true,
+      trim: true,
     },
     email: {
       type: String,
@@ -30,12 +31,15 @@ const userSchema = new Schema<UserDocument>(
     },
     password: {
       type: String,
-      required: true,
       select: true,
     },
     profilePicture: {
       type: String,
       default: '',
+    },
+    currentWorkspace: {
+      type: Schema.Types.ObjectId,
+      ref: 'Workspace',
     },
     isActive: {
       type: Boolean,
@@ -43,11 +47,6 @@ const userSchema = new Schema<UserDocument>(
     },
     lastLogin: {
       type: Date,
-      default: null,
-    },
-    currentWorkspace: {
-      type: Schema.Types.ObjectId,
-      ref: 'Workspace',
       default: null,
     },
   },
