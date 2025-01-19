@@ -1,6 +1,6 @@
 import { Roles, RoleType, Permissions, PermissionType } from './../enums/role.enum';
 
-export const RolePermission: Record<RoleType, PermissionType[]> = {
+export const RolePermissions: Record<RoleType, PermissionType[]> = {
   [Roles.OWNER]: [
     Permissions.CREATE_WORKSPACE,
     Permissions.EDIT_WORKSPACE,
