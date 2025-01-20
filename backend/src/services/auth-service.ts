@@ -1,11 +1,4 @@
 import mongoose from 'mongoose';
-// import UserModel from '../models/user.model';
-// import AccountModel from '../models/account.model';
-// import WorkspaceModel from '../models/workspace.model';
-// import RoleModel from '../models/roles-permission.model';
-// import { Roles } from '../enums/role.enum';
-// import { BadRequestException, NotFoundException, UnauthorizedException } from '../utils/appError';
-// import MemberModel from '../models/member.model';
 import { ProviderEnum } from '../enums/account-provider.enum';
 import { UserModel } from '../models/user-model';
 import { AccountModel } from '../models/account-model';
@@ -113,6 +106,7 @@ export const registerUserService = async (body: {
       name,
       password,
     });
+
     await user.save({ session });
 
     const account = new AccountModel({
@@ -120,6 +114,7 @@ export const registerUserService = async (body: {
       provider: ProviderEnum.EMAIL,
       providerId: email,
     });
+
     await account.save({ session });
 
     // 3. Create a new workspace for the new user
@@ -128,6 +123,7 @@ export const registerUserService = async (body: {
       description: `Workspace created for ${user.name}`,
       owner: user._id,
     });
+
     await workspace.save({ session });
 
     const ownerRole = await RoleModel.findOne({
