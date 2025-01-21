@@ -13,6 +13,8 @@ import { asyncHandler } from './middlewares/async-handler';
 import './config/passport-config';
 import passport from 'passport';
 import { authRouter } from './routes/auth-route';
+import { userRouter } from './routes/user-route';
+import { isAuthenticated } from './middlewares/isAuthenticated';
 
 // App
 const app = express();
@@ -44,14 +46,13 @@ app.use(
   }),
 );
 
-app.use(errorHandler);
-
 // Routes
 app.get('/config-details', (req, res) => {
   res.send(config);
 });
 
 app.use(`${BASE_PATH}/auth`, authRouter);
+app.use(`${BASE_PATH}/user`, isAuthenticated, userRouter);
 
 app.post(
   BASE_PATH,
@@ -60,6 +61,8 @@ app.post(
     res.status(200).json({ name, email });
   }),
 );
+
+app.use(errorHandler);
 
 // Server
 app.listen(config.PORT, async () => {
