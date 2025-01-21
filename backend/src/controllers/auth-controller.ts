@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
+import { Express, NextFunction, Request, Response } from 'express';
 import { asyncHandler } from '../middlewares/async-handler';
 import { config } from '../config/app-config';
 import { registerSchema } from '../validation/auth-validation';
 import { registerUserService } from '../services/auth-service';
 import { HTTP_STATUS } from '../config/http-config';
+import passport from 'passport';
 
 // const BASE_PATH = config.FRONTEND_GOOGLE_CALLBACK_URL;
 // const BASE_PATH = config.FRONTEND_GOOGLE_CALLBACK_URL;
@@ -26,3 +27,33 @@ export const registerUserController = asyncHandler(async (req: Request, res: Res
   await registerUserService(body);
   return res.status(HTTP_STATUS.CREATED).json({ message: 'User registered successfully' });
 });
+
+export const loginUserController = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    passport.authenticate(
+      'local',
+      (err: Error | null, user: Express.User | false, info: { message: string } | undefined) => {
+        if (err) {
+          return next(err);
+        }
+
+        if (!user) {
+          return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+            message: info?.message || 'Invalid email or password',
+          });
+        }
+
+        req.logIn(user, (err) => {
+          if (err) {
+            return next(err);
+          }
+
+          return res.status(HTTP_STATUS.OK).json({
+            message: 'User logged in successfully',
+            user,
+          });
+        });
+      },
+    )(req, res, next);
+  },
+);
