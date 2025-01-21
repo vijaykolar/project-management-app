@@ -4,6 +4,7 @@ import passport from 'passport';
 import {
   googleLoginCallback,
   loginUserController,
+  logoutController,
   registerUserController,
 } from '../controllers/auth-controller';
 
@@ -13,6 +14,7 @@ const failedUrl = `${config.FRONTEND_GOOGLE_CALLBACK_URL}?status=failure`;
 
 authRouter.post('/register', registerUserController);
 authRouter.post('/login', loginUserController);
+authRouter.post('/logout', logoutController);
 
 authRouter.get(
   '/google',
