@@ -68,22 +68,53 @@ export const getAllUserWorkspacesUserIsMemberService = async (userId: string) =>
     .select('-password')
     .exec();
 
-  const workspaces = memberships.map((member) => member.workspaceId);
+  const workspaces = memberships
+    .map((member) => member.workspaceId)
+    .filter((workspaceId) => workspaceId !== null);
+
+  if (!workspaces) {
+    throw new NotFoundException('Workspaces not found');
+  }
 
   return {
     workspaces,
   };
 };
 
-export const getWorkspaceByIdService = async (userId: string, workspaceId: string) => {
-  const user = await UserModel.findById({ userId });
+export const getWorkspaceByIdService = async (workspaceId: string) => {
+  const workspace = await WorkspaceModel.findById(workspaceId);
 
-  if (!user) {
-    throw new NotFoundException('User not found');
+  if (!workspace) {
+    throw new NotFoundException('Workspace not found');
   }
 
-  const workspace = await WorkspaceModel.findById(workspaceId).populate('owner').exec();
+  const members = await MemberModel.find({ workspaceId }).populate('role');
+
+  const workspaceWithMembers = {
+    ...workspace.toObject(),
+    members,
+  };
+
   return {
-    workspace,
+    workspace: workspaceWithMembers,
+  };
+};
+
+/*
+  // *********
+  //  GET WORKSPACE MEMBERS
+  // *********
+*/
+
+export const getWorkspaceMembersService = async (workspaceId: string) => {
+  const members = await MemberModel.find({ workspaceId })
+    .populate('userId', 'name email profilePicture -password')
+    .populate('role', 'name');
+
+  const roles = await RoleModel.find({}, { name: 1, _id: 1 }).select('-permission').lean();
+
+  return {
+    members,
+    roles,
   };
 };

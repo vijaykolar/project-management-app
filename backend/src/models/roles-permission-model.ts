@@ -29,4 +29,4 @@ const rolesPermissionSchema = new Schema<RolesDocument>(
   },
 );
 
-export const RoleModel = model('RolesPermission', rolesPermissionSchema);
+export const RoleModel = model('Role', rolesPermissionSchema);

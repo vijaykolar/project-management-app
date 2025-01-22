@@ -68,6 +68,6 @@ app.use(errorHandler);
 
 // Server
 app.listen(config.PORT, async () => {
-  console.log(`Server is running on ${config.PORT} in ${config.NODE_ENV} mode`);
+  console.log(`Server is running on http://localhost:${config.PORT} in ${config.NODE_ENV} mode`);
   await connectDB();
 });

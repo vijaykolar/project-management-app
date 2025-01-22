@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { ProviderEnum } from '../enums/account-provider.enum';
 import { UserModel } from '../models/user-model';
 import { AccountModel } from '../models/account-model';
-import { WorkSpaceModel } from '../models/workspace-model';
+import { WorkspaceModel } from '../models/workspace-model';
 import { RoleModel } from '../models/roles-permission-model';
 import { Roles } from '../enums/role.enum';
 import { BadRequestException, NotFoundException, UnauthorizedException } from '../utils/AppError';
@@ -43,7 +43,7 @@ export const loginOrCreateAccountService = async (data: {
       await account.save({ session });
 
       // 3. Create a new workspace for the new user
-      const workspace = new WorkSpaceModel({
+      const workspace = new WorkspaceModel({
         name: `My Workspace`,
         description: `Workspace created for ${user.name}`,
         owner: user._id,
@@ -118,7 +118,7 @@ export const registerUserService = async (body: {
     await account.save({ session });
 
     // 3. Create a new workspace for the new user
-    const workspace = new WorkSpaceModel({
+    const workspace = new WorkspaceModel({
       name: `My Workspace`,
       description: `Workspace created for ${user.name}`,
       owner: user._id,

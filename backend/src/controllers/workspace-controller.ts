@@ -6,7 +6,11 @@ import {
   createWorkspaceService,
   getAllUserWorkspacesUserIsMemberService,
   getWorkspaceByIdService,
+  getWorkspaceMembersService,
 } from '../services/workspace-service';
+import { getMemberRoleInWorkspace } from '../services/member-service';
+import { Permissions } from '../enums/role.enum';
+import { roleGuard } from '../utils/role-guard';
 
 /*
   // *********
@@ -50,14 +54,36 @@ export const getAllWorkspacesUserIsMemberController = asyncHandler(
   // *********
 */
 export const getWorkspaceByIdController = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { _id: userId } = req.user!;
+  const workspaceId = workspaceIdSchema.parse(req.params.id);
+  const userId = req.user?._id;
 
-  const workspaceId = workspaceIdSchema.parse(id);
-  console.log(userId);
+  await getMemberRoleInWorkspace(userId, workspaceId);
+
+  const { workspace } = await getWorkspaceByIdService(workspaceId);
 
   return res.status(HTTP_STATUS.OK).json({
     message: 'Workspace fetched successfully',
-    workspace: {},
+    workspace,
+  });
+});
+
+/*
+  // *********
+  //  GET WORKSPACE MEMBERS
+  // *********
+*/
+export const getWorkspaceMembersController = asyncHandler(async (req: Request, res: Response) => {
+  const workspaceId = workspaceIdSchema.parse(req.params.id);
+  const userId = req.user?._id;
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+
+  roleGuard(role, [Permissions.VIEW_ONLY]);
+
+  const { members, roles } = await getWorkspaceMembersService(workspaceId);
+
+  return res.status(HTTP_STATUS.OK).json({
+    message: 'Workspace members fetched successfully',
+    members,
+    roles,
   });
 });

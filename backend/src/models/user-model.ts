@@ -35,7 +35,7 @@ const userSchema = new Schema<UserDocument>(
     },
     profilePicture: {
       type: String,
-      default: '',
+      default: null,
     },
     currentWorkspace: {
       type: Schema.Types.ObjectId,
