@@ -1,3 +1,4 @@
+import { TaskStatusEnum } from './../enums/TaskStatus.enum';
 import { Request, Response } from 'express';
 import { asyncHandler } from '../middlewares/async-handler';
 import { createWorkspaceSchema, workspaceIdSchema } from '../validation/workspace-validation';
@@ -5,12 +6,14 @@ import { HTTP_STATUS } from '../config/http-config';
 import {
   createWorkspaceService,
   getAllUserWorkspacesUserIsMemberService,
+  getWorkspaceAnalyticsService,
   getWorkspaceByIdService,
   getWorkspaceMembersService,
 } from '../services/workspace-service';
 import { getMemberRoleInWorkspace } from '../services/member-service';
 import { Permissions } from '../enums/role.enum';
 import { roleGuard } from '../utils/role-guard';
+import { TaskModel } from '../models/task-model';
 
 /*
   // *********
@@ -85,5 +88,20 @@ export const getWorkspaceMembersController = asyncHandler(async (req: Request, r
     message: 'Workspace members fetched successfully',
     members,
     roles,
+  });
+});
+
+/*
+  // ********
+  // GET WORKSPACE ANALYTICS
+  // ********
+*/
+export const getWorkspaceAnalyticsController = asyncHandler(async (req: Request, res: Response) => {
+  const workspaceId = workspaceIdSchema.parse(req.params.id);
+  const { analytics } = await getWorkspaceAnalyticsService(workspaceId);
+
+  res.status(HTTP_STATUS.OK).json({
+    message: 'Workspace analytics fetched successfully',
+    analytics,
   });
 });

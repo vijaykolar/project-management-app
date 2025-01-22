@@ -5,6 +5,9 @@ import { RoleModel } from '../models/roles-permission-model';
 import { UserModel } from '../models/user-model';
 import { WorkspaceModel } from '../models/workspace-model';
 import { NotFoundException } from '../utils/AppError';
+import exp from 'constants';
+import { TaskModel } from '../models/task-model';
+import { TaskStatusEnum } from '../enums/TaskStatus.enum';
 
 type Workspace = {
   name: string;
@@ -81,6 +84,11 @@ export const getAllUserWorkspacesUserIsMemberService = async (userId: string) =>
   };
 };
 
+/*
+  // *********
+  //  GET WORKSPACE BY ID
+  // *********
+*/
 export const getWorkspaceByIdService = async (workspaceId: string) => {
   const workspace = await WorkspaceModel.findById(workspaceId);
 
@@ -105,7 +113,6 @@ export const getWorkspaceByIdService = async (workspaceId: string) => {
   //  GET WORKSPACE MEMBERS
   // *********
 */
-
 export const getWorkspaceMembersService = async (workspaceId: string) => {
   const members = await MemberModel.find({ workspaceId })
     .populate('userId', 'name email profilePicture -password')
@@ -116,5 +123,36 @@ export const getWorkspaceMembersService = async (workspaceId: string) => {
   return {
     members,
     roles,
+  };
+};
+
+/*
+  // *********
+  //  GET WORKSPACE ANALYTICS
+  // *********
+*/
+export const getWorkspaceAnalyticsService = async (workspaceId: string) => {
+  const currentDate = new Date();
+  const totalTasks = await TaskModel.countDocuments({ workspace: workspaceId });
+
+  const overdueTasks = await TaskModel.countDocuments({
+    workspace: workspaceId,
+    status: { $ne: TaskStatusEnum.DONE },
+    dueDate: { $lt: currentDate },
+  });
+
+  const completedTasks = await TaskModel.countDocuments({
+    workspace: workspaceId,
+    status: TaskStatusEnum.DONE,
+  });
+
+  const analytics = {
+    totalTasks,
+    overdueTasks,
+    completedTasks,
+  };
+
+  return {
+    analytics,
   };
 };

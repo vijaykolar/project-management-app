@@ -1,4 +1,4 @@
-export enum TaskStatus {
+export enum TaskStatusEnum {
   BACKLOG = 'BACKLOG',
   TODO = 'TODO',
   IN_PROGRESS = 'IN_PROGRESS',
@@ -12,5 +12,5 @@ export enum TaskPriority {
   HIGH = 'HIGH',
 }
 
-export type TaskStatusEnumType = keyof typeof TaskStatus;
+export type TaskStatusEnumType = keyof typeof TaskStatusEnum;
 export type TaskPriorityEnumType = keyof typeof TaskPriority;

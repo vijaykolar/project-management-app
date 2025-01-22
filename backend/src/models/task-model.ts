@@ -2,7 +2,7 @@ import mongoose, { Document, model, Schema } from 'mongoose';
 import {
   TaskPriority,
   TaskPriorityEnumType,
-  TaskStatus,
+  TaskStatusEnum,
   TaskStatusEnumType,
 } from '../enums/TaskStatus.enum';
 import { generateTaskCode } from '../utils/uuid';
@@ -51,8 +51,8 @@ const taskSchema = new Schema<TaskDocument>(
     },
     status: {
       type: String,
-      enum: Object.values(TaskStatus),
-      default: TaskStatus.TODO,
+      enum: Object.values(TaskStatusEnum),
+      default: TaskStatusEnum.TODO,
     },
     priority: {
       type: String,
