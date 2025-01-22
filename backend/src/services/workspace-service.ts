@@ -74,3 +74,16 @@ export const getAllUserWorkspacesUserIsMemberService = async (userId: string) =>
     workspaces,
   };
 };
+
+export const getWorkspaceByIdService = async (userId: string, workspaceId: string) => {
+  const user = await UserModel.findById({ userId });
+
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
+
+  const workspace = await WorkspaceModel.findById(workspaceId).populate('owner').exec();
+  return {
+    workspace,
+  };
+};

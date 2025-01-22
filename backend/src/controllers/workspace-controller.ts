@@ -1,12 +1,18 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../middlewares/async-handler';
-import { createWorkspaceSchema } from '../validation/workspace-validation';
+import { createWorkspaceSchema, workspaceIdSchema } from '../validation/workspace-validation';
 import { HTTP_STATUS } from '../config/http-config';
 import {
   createWorkspaceService,
   getAllUserWorkspacesUserIsMemberService,
+  getWorkspaceByIdService,
 } from '../services/workspace-service';
 
+/*
+  // *********
+  //  CREATE WORKSPACE
+  // *********
+*/
 export const createWorkspaceController = asyncHandler(async (req: Request, res: Response) => {
   const body = createWorkspaceSchema.parse(req.body);
 
@@ -19,6 +25,11 @@ export const createWorkspaceController = asyncHandler(async (req: Request, res: 
   });
 });
 
+/*
+  // *********
+  //  GET ALL WORKSPACES USER IS MEMBER
+  // *********
+*/
 export const getAllWorkspacesUserIsMemberController = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user?._id;
@@ -32,3 +43,21 @@ export const getAllWorkspacesUserIsMemberController = asyncHandler(
     });
   },
 );
+
+/*
+  // *********
+  //  GET WORKSPACE BY ID
+  // *********
+*/
+export const getWorkspaceByIdController = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { _id: userId } = req.user!;
+
+  const workspaceId = workspaceIdSchema.parse(id);
+  console.log(userId);
+
+  return res.status(HTTP_STATUS.OK).json({
+    message: 'Workspace fetched successfully',
+    workspace: {},
+  });
+});
