@@ -48,7 +48,7 @@ app.use(
 );
 
 // Routes
-app.get('/config-details', (req, res) => {
+app.get('/api/config-details', (req, res) => {
   res.send(config);
 });
 
