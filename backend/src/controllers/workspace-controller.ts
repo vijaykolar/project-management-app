@@ -2,7 +2,10 @@ import { Request, Response } from 'express';
 import { asyncHandler } from '../middlewares/async-handler';
 import { createWorkspaceSchema } from '../validation/workspace-validation';
 import { HTTP_STATUS } from '../config/http-config';
-import { createWorkspaceService } from '../services/workspace-service';
+import {
+  createWorkspaceService,
+  getAllUserWorkspacesUserIsMemberService,
+} from '../services/workspace-service';
 
 export const createWorkspaceController = asyncHandler(async (req: Request, res: Response) => {
   const body = createWorkspaceSchema.parse(req.body);
@@ -15,3 +18,17 @@ export const createWorkspaceController = asyncHandler(async (req: Request, res: 
     workspace,
   });
 });
+
+export const getAllWorkspacesUserIsMemberController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+
+    const { workspaces } = await getAllUserWorkspacesUserIsMemberService(userId);
+
+    return res.status(HTTP_STATUS.OK).json({
+      message: 'User workspaces fetched successfully',
+      workspaces,
+      count: workspaces.length,
+    });
+  },
+);

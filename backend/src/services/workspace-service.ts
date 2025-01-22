@@ -11,6 +11,11 @@ type Workspace = {
   description?: string | undefined;
 };
 
+/*
+  // *********
+  //  CREATE WORKSPACE
+  // *********
+*/
 export const createWorkspaceService = async (userId: string, body: Workspace) => {
   const { name, description } = body;
 
@@ -49,5 +54,23 @@ export const createWorkspaceService = async (userId: string, body: Workspace) =>
 
   return {
     workspace,
+  };
+};
+
+/*
+  // *********
+  //  GET ALL WORKSPACES USER IS MEMBER
+  // *********
+*/
+export const getAllUserWorkspacesUserIsMemberService = async (userId: string) => {
+  const memberships = await MemberModel.find({ userId })
+    .populate('workspaceId')
+    .select('-password')
+    .exec();
+
+  const workspaces = memberships.map((member) => member.workspaceId);
+
+  return {
+    workspaces,
   };
 };
