@@ -1,19 +1,19 @@
-import { TaskStatusEnum } from './../enums/TaskStatus.enum';
 import { Request, Response } from 'express';
-import { asyncHandler } from '../middlewares/async-handler';
-import { createWorkspaceSchema, workspaceIdSchema } from '../validation/workspace-validation';
 import { HTTP_STATUS } from '../config/http-config';
+import { Permissions } from '../enums/role.enum';
+import { asyncHandler } from '../middlewares/async-handler';
+import { getMemberRoleInWorkspace } from '../services/member-service';
 import {
+  changeMemberRoleService,
   createWorkspaceService,
   getAllUserWorkspacesUserIsMemberService,
   getWorkspaceAnalyticsService,
   getWorkspaceByIdService,
   getWorkspaceMembersService,
 } from '../services/workspace-service';
-import { getMemberRoleInWorkspace } from '../services/member-service';
-import { Permissions } from '../enums/role.enum';
 import { roleGuard } from '../utils/role-guard';
-import { TaskModel } from '../models/task-model';
+import { createWorkspaceSchema, workspaceIdSchema } from '../validation/workspace-validation';
+import { changeRoleSchema } from './../validation/workspace-validation';
 
 /*
   // *********
@@ -105,3 +105,27 @@ export const getWorkspaceAnalyticsController = asyncHandler(async (req: Request,
     analytics,
   });
 });
+
+/*
+  // ********
+  // GET WORKSPACE MEMBER ROLES
+  // ********
+*/
+export const changeWorkspaceMemberRoleController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const workspaceId = workspaceIdSchema.parse(req.params.id);
+    const userId = req.user?._id;
+    const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+
+    roleGuard(role, [Permissions.CHANGE_MEMBER_ROLE]);
+
+    const { memberId, roleId } = changeRoleSchema.parse(req.body);
+
+    const { member } = await changeMemberRoleService(memberId, roleId, workspaceId);
+
+    return res.status(HTTP_STATUS.OK).json({
+      message: 'Member role updated successfully',
+      member,
+    });
+  },
+);

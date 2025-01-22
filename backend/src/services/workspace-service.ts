@@ -1,13 +1,12 @@
 import mongoose from 'mongoose';
 import { Roles } from '../enums/role.enum';
+import { TaskStatusEnum } from '../enums/TaskStatus.enum';
 import { MemberModel } from '../models/member-model';
 import { RoleModel } from '../models/roles-permission-model';
+import { TaskModel } from '../models/task-model';
 import { UserModel } from '../models/user-model';
 import { WorkspaceModel } from '../models/workspace-model';
 import { NotFoundException } from '../utils/AppError';
-import exp from 'constants';
-import { TaskModel } from '../models/task-model';
-import { TaskStatusEnum } from '../enums/TaskStatus.enum';
 
 type Workspace = {
   name: string;
@@ -154,5 +153,40 @@ export const getWorkspaceAnalyticsService = async (workspaceId: string) => {
 
   return {
     analytics,
+  };
+};
+
+export const changeMemberRoleService = async (
+  memberId: string,
+  roleId: string,
+  workspaceId: string,
+) => {
+  const workspace = await WorkspaceModel.findById(workspaceId);
+
+  if (!workspace) {
+    throw new NotFoundException('Workspace not found');
+  }
+
+  const role = await RoleModel.findById(roleId);
+
+  if (!role) {
+    throw new NotFoundException('Role not found');
+  }
+
+  const member = await MemberModel.findOne({
+    userId: memberId,
+    workspaceId,
+  });
+
+  if (!member) {
+    throw new NotFoundException('Member not found in the workspace');
+  }
+
+  member.role = role;
+
+  await member.save();
+
+  return {
+    member,
   };
 };
