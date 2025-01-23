@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backend for project management application",
   "main": "index.js",
   "scripts": {
     "seed": "ts-node src/seeders/role-seeder.ts",
