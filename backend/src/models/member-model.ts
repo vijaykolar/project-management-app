@@ -1,10 +1,10 @@
-import mongoose, { Document, model, Schema } from 'mongoose';
-import { RolesDocument } from './roles-permission-model';
+import mongoose, { Document, Schema } from 'mongoose';
+import { RoleDocument } from './roles-permission-model';
 
 export interface MemberDocument extends Document {
   userId: mongoose.Types.ObjectId;
   workspaceId: mongoose.Types.ObjectId;
-  role: RolesDocument;
+  role: RoleDocument;
   joinedAt: Date;
 }
 
@@ -35,4 +35,5 @@ const memberSchema = new Schema<MemberDocument>(
   },
 );
 
-export const MemberModel = model('Member', memberSchema);
+const MemberModel = mongoose.model<MemberDocument>('Member', memberSchema);
+export default MemberModel;

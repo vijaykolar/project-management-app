@@ -1,24 +1,33 @@
-import { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
+import { ErrorRequestHandler, Response } from 'express';
 import { HTTP_STATUS } from '../config/http-config';
-import { AppError } from '../utils/AppError';
-import { ZodError } from 'zod';
-import { ErrorCodeEnumType } from '../enums/error-code.enum';
 
-export const errorHandler: ErrorRequestHandler = (
-  error: any,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): any => {
-  console.log(`error occurred: on path ${req.path}`);
+import { z, ZodError } from 'zod';
+import { ErrorCodeEnum } from '../enums/error-code.enum';
+import { AppError } from '../utils/AppError';
+
+const formatZodError = (res: Response, error: z.ZodError) => {
+  const errors = error?.issues?.map((err) => ({
+    field: err.path.join('.'),
+    message: err.message,
+  }));
+  return res.status(HTTP_STATUS.BAD_REQUEST).json({
+    message: 'Validation failed',
+    errors: errors,
+    errorCode: ErrorCodeEnum.VALIDATION_ERROR,
+  });
+};
+
+export const errorHandler: ErrorRequestHandler = (error, req, res, next): any => {
+  console.error(`Error Occured on PATH: ${req.path} `, error);
+
   if (error instanceof SyntaxError) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
-      message: 'Invalid JSON payload passed.',
+      message: 'Invalid JSON format. Please check your request body.',
     });
   }
 
   if (error instanceof ZodError) {
-    return zodError(res, error);
+    return formatZodError(res, error);
   }
 
   if (error instanceof AppError) {
@@ -30,21 +39,6 @@ export const errorHandler: ErrorRequestHandler = (
 
   return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
     message: 'Internal Server Error',
-    error: error?.message || 'Unknown error occurred',
+    error: error?.message || 'Unknow error occurred',
   });
-
-  //   next();
 };
-
-function zodError(res: Response, error: ZodError) {
-  const errors = error.errors.map((err) => ({
-    field: err.path.join('.'),
-    message: err.message,
-  }));
-
-  return res.status(HTTP_STATUS.BAD_REQUEST).json({
-    message: 'Validation Error',
-    errors,
-    errorCode: ErrorCodeEnumType.VERIFICATION_ERROR,
-  });
-}

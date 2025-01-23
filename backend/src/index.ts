@@ -1,32 +1,33 @@
-import dotenv from 'dotenv';
-dotenv.config();
-import express, { Request, Response } from 'express';
-import morgan from 'morgan';
-import session from 'cookie-session';
+import 'dotenv/config';
+import express, { NextFunction, Request, Response } from 'express';
 import cors from 'cors';
-
+import session from 'cookie-session';
 import { config } from './config/app-config';
-import { connectDB } from './config/database-config';
-import { errorHandler } from './middlewares/error-handler';
+import connectDatabase from './config/database-config';
+
+import { HTTP_STATUS } from './config/http-config';
 import { asyncHandler } from './middlewares/async-handler';
+import { BadRequestException } from './utils/AppError';
+import { ErrorCodeEnum } from './enums/error-code.enum';
 
 import './config/passport-config';
 import passport from 'passport';
-import { authRouter } from './routes/auth-route';
-import { userRouter } from './routes/user-route';
-import { isAuthenticated } from './middlewares/isAuthenticated';
-import { workspaceRouter } from './routes/workspace-route';
-import { memberRouters } from './routes/member-route';
+import authRoutes from './routes/auth-route';
+import userRoutes from './routes/user-route';
+import isAuthenticated from './middlewares/isAuthenticated';
+import workspaceRoutes from './routes/workspace-route';
+import memberRoutes from './routes/member-route';
+import projectRoutes from './routes/project-route';
+import taskRoutes from './routes/task-route';
+import { errorHandler } from './middlewares/error-handler';
 
-// App
 const app = express();
-// Constants
 const BASE_PATH = config.BASE_PATH;
 
-// Middlewares
-app.use(morgan('dev'));
 app.use(express.json());
+
 app.use(express.urlencoded({ extended: true }));
+
 app.use(
   session({
     name: 'session',
@@ -48,28 +49,25 @@ app.use(
   }),
 );
 
-// Routes
-app.get('/api/config-details', (req, res) => {
-  res.send(config);
-});
-
-app.use(`${BASE_PATH}/auth`, authRouter);
-app.use(`${BASE_PATH}/user`, isAuthenticated, userRouter);
-app.use(`${BASE_PATH}/workspace`, isAuthenticated, workspaceRouter);
-app.use(`${BASE_PATH}/member`, isAuthenticated, memberRouters);
-
-app.post(
-  BASE_PATH,
-  asyncHandler(async (req: Request, res: Response) => {
-    const { name, email } = req.body;
-    res.status(200).json({ name, email });
+app.get(
+  `/`,
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    return res.status(HTTP_STATUS.OK).json({
+      message: 'This is first route',
+    });
   }),
 );
 
+app.use(`${BASE_PATH}/auth`, authRoutes);
+app.use(`${BASE_PATH}/user`, isAuthenticated, userRoutes);
+app.use(`${BASE_PATH}/workspace`, isAuthenticated, workspaceRoutes);
+app.use(`${BASE_PATH}/member`, isAuthenticated, memberRoutes);
+app.use(`${BASE_PATH}/project`, isAuthenticated, projectRoutes);
+app.use(`${BASE_PATH}/task`, isAuthenticated, taskRoutes);
+
 app.use(errorHandler);
 
-// Server
 app.listen(config.PORT, async () => {
-  console.log(`Server is running on http://localhost:${config.PORT} in ${config.NODE_ENV} mode`);
-  await connectDB();
+  console.log(`Server listening on port ${config.PORT} in ${config.NODE_ENV}`);
+  await connectDatabase();
 });

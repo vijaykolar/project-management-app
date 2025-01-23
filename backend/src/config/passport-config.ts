@@ -4,9 +4,8 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as LocalStrategy } from 'passport-local';
 
 import { config } from './app-config';
-
-import { ProviderEnum } from '../enums/account-provider.enum';
 import { NotFoundException } from '../utils/AppError';
+import { ProviderEnum } from '../enums/account-provider.enum';
 import { loginOrCreateAccountService, verifyUserService } from '../services/auth-service';
 
 passport.use(
@@ -51,7 +50,7 @@ passport.use(
     },
     async (email, password, done) => {
       try {
-        const user = (await verifyUserService({ email, password })) as any;
+        const user = await verifyUserService({ email, password });
         return done(null, user);
       } catch (error: any) {
         return done(error, false, { message: error?.message });

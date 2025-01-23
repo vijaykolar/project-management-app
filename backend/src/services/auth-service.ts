@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
-import { ProviderEnum } from '../enums/account-provider.enum';
-import { UserModel } from '../models/user-model';
-import { AccountModel } from '../models/account-model';
-import { WorkspaceModel } from '../models/workspace-model';
-import { RoleModel } from '../models/roles-permission-model';
-import { Roles } from '../enums/role.enum';
+import UserModel from '../models/user-model';
+import AccountModel from '../models/account-model';
+import WorkspaceModel from '../models/workspace-model';
+import RoleModel from '../models/roles-permission-model';
+import { Roles } from '../enums/role-enum';
 import { BadRequestException, NotFoundException, UnauthorizedException } from '../utils/AppError';
-import { MemberModel } from '../models/member-model';
+import MemberModel from '../models/member-model';
+import { ProviderEnum } from '../enums/account-provider.enum';
 
 export const loginOrCreateAccountService = async (data: {
   provider: string;
@@ -26,7 +26,7 @@ export const loginOrCreateAccountService = async (data: {
     let user = await UserModel.findOne({ email }).session(session);
 
     if (!user) {
-      // 1. Create a new user if it doesn't exist
+      // Create a new user if it doesn't exist
       user = new UserModel({
         email,
         name: displayName,
@@ -34,7 +34,6 @@ export const loginOrCreateAccountService = async (data: {
       });
       await user.save({ session });
 
-      // 2. Create a new account for the new user
       const account = new AccountModel({
         userId: user._id,
         provider: provider,
@@ -50,7 +49,6 @@ export const loginOrCreateAccountService = async (data: {
       });
       await workspace.save({ session });
 
-      // 4. Assign the owner role to the user in the workspace
       const ownerRole = await RoleModel.findOne({
         name: Roles.OWNER,
       }).session(session);
@@ -59,7 +57,6 @@ export const loginOrCreateAccountService = async (data: {
         throw new NotFoundException('Owner role not found');
       }
 
-      // 5. Add the user as a member to the workspace
       const member = new MemberModel({
         userId: user._id,
         workspaceId: workspace._id,
@@ -106,7 +103,6 @@ export const registerUserService = async (body: {
       name,
       password,
     });
-
     await user.save({ session });
 
     const account = new AccountModel({
@@ -114,7 +110,6 @@ export const registerUserService = async (body: {
       provider: ProviderEnum.EMAIL,
       providerId: email,
     });
-
     await account.save({ session });
 
     // 3. Create a new workspace for the new user
@@ -123,7 +118,6 @@ export const registerUserService = async (body: {
       description: `Workspace created for ${user.name}`,
       owner: user._id,
     });
-
     await workspace.save({ session });
 
     const ownerRole = await RoleModel.findOne({

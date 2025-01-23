@@ -2,27 +2,28 @@ import { Router } from 'express';
 import {
   changeWorkspaceMemberRoleController,
   createWorkspaceController,
+  deleteWorkspaceByIdController,
   getAllWorkspacesUserIsMemberController,
   getWorkspaceAnalyticsController,
   getWorkspaceByIdController,
   getWorkspaceMembersController,
+  updateWorkspaceByIdController,
 } from '../controllers/workspace-controller';
 
-const workspaceRouter = Router();
+const workspaceRoutes = Router();
 
-/*
-  // *********
-  // WORKSPACE CONTROLLER ROUTES
-  // *********
-*/
-workspaceRouter.post('/create/new', createWorkspaceController);
-workspaceRouter.put('/change/member/role/:id', changeWorkspaceMemberRoleController);
+workspaceRoutes.post('/create/new', createWorkspaceController);
+workspaceRoutes.put('/update/:id', updateWorkspaceByIdController);
 
-workspaceRouter.get('/all', getAllWorkspacesUserIsMemberController);
+workspaceRoutes.put('/change/member/role/:id', changeWorkspaceMemberRoleController);
 
-workspaceRouter.get('/members/:id', getWorkspaceMembersController);
-workspaceRouter.get('/analytics/:id', getWorkspaceAnalyticsController);
+workspaceRoutes.delete('/delete/:id', deleteWorkspaceByIdController);
 
-workspaceRouter.get('/:id', getWorkspaceByIdController);
+workspaceRoutes.get('/all', getAllWorkspacesUserIsMemberController);
 
-export { workspaceRouter };
+workspaceRoutes.get('/members/:id', getWorkspaceMembersController);
+workspaceRoutes.get('/analytics/:id', getWorkspaceAnalyticsController);
+
+workspaceRoutes.get('/:id', getWorkspaceByIdController);
+
+export default workspaceRoutes;

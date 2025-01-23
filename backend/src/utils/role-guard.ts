@@ -1,4 +1,4 @@
-import { PermissionType } from '../enums/role.enum';
+import { PermissionType, Permissions } from '../enums/role-enum';
 import { UnauthorizedException } from './AppError';
 import { RolePermissions } from './role-permission';
 

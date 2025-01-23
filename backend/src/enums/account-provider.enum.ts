@@ -1,8 +1,8 @@
-export enum ProviderEnum {
-  GOOGLE = 'google',
-  GITHUB = 'github',
-  FACEBOOK = 'facebook',
-  EMAIL = 'EMAIL',
-}
+export const ProviderEnum = {
+  GOOGLE: "GOOGLE",
+  GITHUB: "GITHUB",
+  FACEBOOK: "FACEBOOK",
+  EMAIL: "EMAIL",
+};
 
 export type ProviderEnumType = keyof typeof ProviderEnum;

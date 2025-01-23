@@ -1,10 +1,10 @@
-import mongoose, { Document, model, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 import {
-  TaskPriority,
+  TaskPriorityEnum,
   TaskPriorityEnumType,
   TaskStatusEnum,
   TaskStatusEnumType,
-} from '../enums/TaskStatus.enum';
+} from '../enums/task-enum';
 import { generateTaskCode } from '../utils/uuid';
 
 export interface TaskDocument extends Document {
@@ -15,8 +15,9 @@ export interface TaskDocument extends Document {
   workspace: mongoose.Types.ObjectId;
   status: TaskStatusEnumType;
   priority: TaskPriorityEnumType;
-  assignedTo: mongoose.Types.ObjectId;
-  assignedBy: mongoose.Types.ObjectId;
+  assignedTo: mongoose.Types.ObjectId | null;
+  createdBy: mongoose.Types.ObjectId;
+  dueDate: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,7 +26,6 @@ const taskSchema = new Schema<TaskDocument>(
   {
     taskCode: {
       type: String,
-      required: true,
       unique: true,
       default: generateTaskCode,
     },
@@ -36,8 +36,8 @@ const taskSchema = new Schema<TaskDocument>(
     },
     description: {
       type: String,
-      default: '',
       trim: true,
+      default: null,
     },
     project: {
       type: Schema.Types.ObjectId,
@@ -56,22 +56,29 @@ const taskSchema = new Schema<TaskDocument>(
     },
     priority: {
       type: String,
-      enum: Object.values(TaskPriority),
-      default: TaskPriority.MEDIUM,
+      enum: Object.values(TaskPriorityEnum),
+      default: TaskPriorityEnum.MEDIUM,
     },
     assignedTo: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
       default: null,
     },
-    assignedBy: {
+    createdBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
+    dueDate: {
+      type: Date,
+      default: null,
+    },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
 
-export const TaskModel = model('Task', taskSchema);
+const TaskModel = mongoose.model<TaskDocument>('Task', taskSchema);
+
+export default TaskModel;

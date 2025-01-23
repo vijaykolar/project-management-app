@@ -1,30 +1,30 @@
-import { config } from './../config/app-config';
 import { Router } from 'express';
 import passport from 'passport';
+import { config } from '../config/app-config';
 import {
   googleLoginCallback,
-  loginUserController,
-  logoutController,
+  loginController,
+  logOutController,
   registerUserController,
 } from '../controllers/auth-controller';
 
-const authRouter = Router();
-
 const failedUrl = `${config.FRONTEND_GOOGLE_CALLBACK_URL}?status=failure`;
 
-authRouter.post('/register', registerUserController);
-authRouter.post('/login', loginUserController);
-authRouter.post('/logout', logoutController);
+const authRoutes = Router();
 
-authRouter.get(
+authRoutes.post('/register', registerUserController);
+authRoutes.post('/login', loginController);
+
+authRoutes.post('/logout', logOutController);
+
+authRoutes.get(
   '/google',
   passport.authenticate('google', {
     scope: ['profile', 'email'],
-    // session: false,
   }),
 );
 
-authRouter.get(
+authRoutes.get(
   '/google/callback',
   passport.authenticate('google', {
     failureRedirect: failedUrl,
@@ -32,4 +32,4 @@ authRouter.get(
   googleLoginCallback,
 );
 
-export { authRouter };
+export default authRoutes;

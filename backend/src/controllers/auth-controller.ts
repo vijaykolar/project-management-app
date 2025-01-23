@@ -1,22 +1,19 @@
-import { Express, NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { asyncHandler } from '../middlewares/async-handler';
 import { config } from '../config/app-config';
 import { registerSchema } from '../validation/auth-validation';
-import { registerUserService } from '../services/auth-service';
 import { HTTP_STATUS } from '../config/http-config';
+import { registerUserService } from '../services/auth-service';
 import passport from 'passport';
-
-// const BASE_PATH = config.FRONTEND_GOOGLE_CALLBACK_URL;
-// const BASE_PATH = config.FRONTEND_GOOGLE_CALLBACK_URL;
-
-const { FRONTEND_GOOGLE_CALLBACK_URL, FRONTEND_ORIGIN } = config;
 
 export const googleLoginCallback = asyncHandler(async (req: Request, res: Response) => {
   const currentWorkspace = req.user?.currentWorkspace;
+
   if (!currentWorkspace) {
-    return res.redirect(`${FRONTEND_GOOGLE_CALLBACK_URL}?status=failure`);
+    return res.redirect(`${config.FRONTEND_GOOGLE_CALLBACK_URL}?status=failure`);
   }
-  return res.redirect(`${FRONTEND_ORIGIN}/workspace/${currentWorkspace}`);
+
+  return res.redirect(`${config.FRONTEND_ORIGIN}/workspace/${currentWorkspace}`);
 });
 
 export const registerUserController = asyncHandler(async (req: Request, res: Response) => {
@@ -25,10 +22,13 @@ export const registerUserController = asyncHandler(async (req: Request, res: Res
   });
 
   await registerUserService(body);
-  return res.status(HTTP_STATUS.CREATED).json({ message: 'User registered successfully' });
+
+  return res.status(HTTP_STATUS.CREATED).json({
+    message: 'User created successfully',
+  });
 });
 
-export const loginUserController = asyncHandler(
+export const loginController = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate(
       'local',
@@ -49,7 +49,7 @@ export const loginUserController = asyncHandler(
           }
 
           return res.status(HTTP_STATUS.OK).json({
-            message: 'User logged in successfully',
+            message: 'Logged in successfully',
             user,
           });
         });
@@ -58,16 +58,14 @@ export const loginUserController = asyncHandler(
   },
 );
 
-export const logoutController = asyncHandler(async (req: Request, res: Response) => {
-  req.logout((err: Error) => {
+export const logOutController = asyncHandler(async (req: Request, res: Response) => {
+  req.logout((err) => {
     if (err) {
-      console.error('Logout error', err);
-
-      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-        message: 'Error logging out',
-      });
+      console.error('Logout error:', err);
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Failed to log out' });
     }
   });
+
   req.session = null;
-  return res.status(HTTP_STATUS.OK).json({ message: 'User logged out successfully' });
+  return res.status(HTTP_STATUS.OK).json({ message: 'Logged out successfully' });
 });

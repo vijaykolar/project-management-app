@@ -1,8 +1,8 @@
-import { ErrorCodeEnumType } from '../enums/error-code.enum';
-import { Roles } from '../enums/role.enum';
-import { MemberModel } from '../models/member-model';
-import { RoleModel } from '../models/roles-permission-model';
-import { WorkspaceModel } from '../models/workspace-model';
+import { ErrorCodeEnum } from '../enums/error-code.enum';
+import { Roles } from '../enums/role-enum';
+import MemberModel from '../models/member-model';
+import RoleModel from '../models/roles-permission-model';
+import WorkspaceModel from '../models/workspace-model';
 import { BadRequestException, NotFoundException, UnauthorizedException } from '../utils/AppError';
 
 export const getMemberRoleInWorkspace = async (userId: string, workspaceId: string) => {
@@ -19,7 +19,7 @@ export const getMemberRoleInWorkspace = async (userId: string, workspaceId: stri
   if (!member) {
     throw new UnauthorizedException(
       'You are not a member of this workspace',
-      ErrorCodeEnumType.ACCESS_UNAUTHORIZED,
+      ErrorCodeEnum.ACCESS_UNAUTHORIZED,
     );
   }
 
@@ -28,18 +28,14 @@ export const getMemberRoleInWorkspace = async (userId: string, workspaceId: stri
   return { role: roleName };
 };
 
-/*
-  // ********
-  // GET WORKSPACE ROLE BY INVITE CODE
-  // ********
-*/
 export const joinWorkspaceByInviteService = async (userId: string, inviteCode: string) => {
-  const workspace = await WorkspaceModel.findOne({ inviteCode });
+  // Find workspace by invite code
+  const workspace = await WorkspaceModel.findOne({ inviteCode }).exec();
   if (!workspace) {
-    throw new NotFoundException('Invalid invite code or  Workspace not found');
+    throw new NotFoundException('Invalid invite code or workspace not found');
   }
 
-  // Check if the user is already a member of the workspace
+  // Check if user is already a member
   const existingMember = await MemberModel.findOne({
     userId,
     workspaceId: workspace._id,
@@ -49,19 +45,19 @@ export const joinWorkspaceByInviteService = async (userId: string, inviteCode: s
     throw new BadRequestException('You are already a member of this workspace');
   }
 
-  const role = await RoleModel.findById({ name: Roles.MEMBER });
+  const role = await RoleModel.findOne({ name: Roles.MEMBER });
+
   if (!role) {
     throw new NotFoundException('Role not found');
   }
 
-  // Create a new member and save it to the database
+  // Add user to workspace as a member
   const newMember = new MemberModel({
     userId,
     workspaceId: workspace._id,
     role: role._id,
   });
-
   await newMember.save();
 
-  return { workspaceId: workspace._id, role };
+  return { workspaceId: workspace._id, role: role.name };
 };
