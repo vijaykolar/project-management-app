@@ -38,8 +38,6 @@ export function WorkspaceSwitcher() {
     refetchOnMount: true,
   });
 
-  console.log(data, "data");
-
   const { onOpen } = useCreateWorkspaceDialog();
   const workspaceId = useWorkspaceId();
 
