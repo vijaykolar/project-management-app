@@ -16,6 +16,7 @@ import { authRouter } from './routes/auth-route';
 import { userRouter } from './routes/user-route';
 import { isAuthenticated } from './middlewares/isAuthenticated';
 import { workspaceRouter } from './routes/workspace-route';
+import { memberRouters } from './routes/member-route';
 
 // App
 const app = express();
@@ -55,6 +56,7 @@ app.get('/api/config-details', (req, res) => {
 app.use(`${BASE_PATH}/auth`, authRouter);
 app.use(`${BASE_PATH}/user`, isAuthenticated, userRouter);
 app.use(`${BASE_PATH}/workspace`, isAuthenticated, workspaceRouter);
+app.use(`${BASE_PATH}/member`, isAuthenticated, memberRouters);
 
 app.post(
   BASE_PATH,
