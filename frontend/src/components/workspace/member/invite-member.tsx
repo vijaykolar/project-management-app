@@ -1,14 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuthContext } from "@/context/auth-provider";
 import { toast } from "@/hooks/use-toast";
+import { BASE_ROUTE } from "@/routes/common/routePaths";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { useState } from "react";
 
 const InviteMember = () => {
   const [copied, setCopied] = useState(false);
+  const { workspace } = useAuthContext();
 
-  const inviteUrl = "http://example.com/link/to/document";
+  const inviteUrl = workspace
+    ? `${window.location.origin}${BASE_ROUTE.INVITE_URL.replace(
+        ":inviteCode",
+        workspace.inviteCode
+      )}`
+    : "";
 
   const handleCopy = () => {
     if (inviteUrl) {
