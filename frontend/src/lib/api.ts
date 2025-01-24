@@ -1,14 +1,17 @@
-import API from "./axios-client";
 import {
   AllWorkspaceResponseType,
   CreateWorkspaceResponseType,
   CreateWorkspaceType,
   CurrentUserResponseType,
+  EditProjectPayloadType,
+  EditWorkspaceType,
   LoginResponseType,
   loginType,
   registerType,
   WorkspaceByIdResponseType,
+  WorkspaceType,
 } from "@/types/api.type";
+import API from "./axios-client";
 
 export const loginMutationFn = async (
   data: loginType
@@ -42,7 +45,13 @@ export const createWorkspaceMutationFn = async (
   return response.data;
 };
 
-export const editWorkspaceMutationFn = async () => {};
+export const editWorkspaceMutationFn = async ({
+  workspaceId,
+  data,
+}: EditWorkspaceType): Promise<EditProjectPayloadType> => {
+  const response = await API.put(`/workspace/update/${workspaceId}`, data);
+  return response.data;
+};
 
 export const getWorkspaceByIdQueryFn = async (
   workspaceId: string
@@ -61,7 +70,12 @@ export const getWorkspaceAnalyticsQueryFn = async () => {};
 
 export const changeWorkspaceMemberRoleMutationFn = async () => {};
 
-export const deleteWorkspaceMutationFn = async () => {};
+export const deleteWorkspaceMutationFn = async (
+  workspaceId: string
+): Promise<{ message: string; currentWorkspace: string }> => {
+  const response = await API.delete(`/workspace/delete/${workspaceId}`);
+  return response.data;
+};
 
 //*******MEMBER ****************
 
