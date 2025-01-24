@@ -48,13 +48,12 @@ const SignIn = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: "test@test.com",
+      password: "123456789",
     },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
     if (isPending) return;
     mutate(values, {
       onSuccess: (data) => {

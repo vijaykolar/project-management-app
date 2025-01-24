@@ -32,7 +32,7 @@ export function WorkspaceSwitcher() {
   const navigate = useNavigate();
   const { isMobile } = useSidebar();
   const { data, isLoading } = useQuery({
-    queryKey: ["user-workspaces"],
+    queryKey: ["userWorkspaces"],
     queryFn: getAllWorkspacesUserIsMemberQueryFn,
     staleTime: 1,
     refetchOnMount: true,
@@ -48,7 +48,7 @@ export function WorkspaceSwitcher() {
   React.useEffect(() => {
     if (workspaces?.length) {
       const workspace = workspaceId
-        ? workspaces.find((ws) => ws._id === workspaceId)
+        ? workspaces?.find((ws) => ws?._id === workspaceId)
         : workspaces[0];
 
       if (workspace) {
@@ -116,24 +116,26 @@ export function WorkspaceSwitcher() {
                 Workspaces
               </DropdownMenuLabel>
               {isLoading ? <Loader className="size-5 animate-spin" /> : null}
-              {workspaces?.map((workspace) => (
-                <DropdownMenuItem
-                  key={workspace._id}
-                  onClick={() => onSelect(workspace)}
-                  className="gap-2 p-2 !cursor-pointer"
-                >
-                  <div className="flex size-6 items-center justify-center rounded-sm border">
-                    {workspace?.name?.split(" ")?.[0]?.charAt(0)}
-                  </div>
-                  {workspace.name}
+              {workspaces?.length
+                ? workspaces?.map((workspace) => (
+                    <DropdownMenuItem
+                      key={workspace?._id}
+                      onClick={() => onSelect(workspace)}
+                      className="gap-2 p-2 !cursor-pointer"
+                    >
+                      <div className="flex size-6 items-center justify-center rounded-sm border">
+                        {workspace?.name?.split(" ")?.[0]?.charAt(0)}
+                      </div>
+                      {workspace?.name}
 
-                  {workspace._id === workspaceId && (
-                    <DropdownMenuShortcut className="tracking-normal !opacity-100">
-                      <Check className="w-4 h-4" />
-                    </DropdownMenuShortcut>
-                  )}
-                </DropdownMenuItem>
-              ))}
+                      {workspace?._id === workspaceId && (
+                        <DropdownMenuShortcut className="tracking-normal !opacity-100">
+                          <Check className="w-4 h-4" />
+                        </DropdownMenuShortcut>
+                      )}
+                    </DropdownMenuItem>
+                  ))
+                : null}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="gap-2 p-2 !cursor-pointer"

@@ -11,7 +11,7 @@ const CreateWorkspaceDialog = () => {
         aria-describedby="Create work space"
         className="sm:max-w-5xl !p-0 overflow-hidden border-0"
       >
-        <WorkspaceForm />
+        <WorkspaceForm onClose={onClose} />
       </DialogContent>
     </Dialog>
   );
