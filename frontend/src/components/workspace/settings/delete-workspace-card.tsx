@@ -84,7 +84,7 @@ const DeleteWorkspaceCard = () => {
         isLoading={isPending}
         onClose={onCloseDialog}
         onConfirm={handleConfirm}
-        title={`Delete ${workspace.name} Workspace`}
+        title={`Delete ${workspace?.name} Workspace`}
         description={`Are you sure you want to delete? This action cannot be undone.`}
         confirmText="Delete"
         cancelText="Cancel"
