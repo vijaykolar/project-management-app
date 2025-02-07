@@ -18,7 +18,7 @@ const PermissionsGuard: FC<PermissionsGuardProps> = ({
     return (
       showMessage && (
         <div className="text-center text-sm pt-3 italic w-full text-muted-foreground">
-          You do not have the permission to invite a member.
+          You do not have the permission to view this.
         </div>
       )
     );
