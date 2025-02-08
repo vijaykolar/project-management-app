@@ -10,6 +10,7 @@ const EditProjectDialog = (props: { project?: ProjectType }) => {
   const onClose = () => {
     setIsOpen(false);
   };
+
   return (
     <div>
       <Dialog modal={true} open={isOpen} onOpenChange={setIsOpen}>

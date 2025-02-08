@@ -1,6 +1,6 @@
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { getProjectsInWorkspaceQueryFn } from "@/lib/api";
 import { AllProjectPayloadType } from "@/types/api.type";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 const useGetProjectsInWorkspaceQuery = ({
   workspaceId,
@@ -9,10 +9,14 @@ const useGetProjectsInWorkspaceQuery = ({
   skip = false,
 }: AllProjectPayloadType) => {
   const query = useQuery({
-    queryKey: ["allprojects", workspaceId, pageSize, pageNumber],
-    staleTime: Infinity,
+    queryKey: ["allprojects", workspaceId, pageNumber, pageSize],
     queryFn: () =>
-      getProjectsInWorkspaceQueryFn({ workspaceId, pageNumber, pageSize }),
+      getProjectsInWorkspaceQueryFn({
+        workspaceId,
+        pageSize,
+        pageNumber,
+      }),
+    staleTime: Infinity,
     placeholderData: skip ? undefined : keepPreviousData,
     enabled: !skip,
   });

@@ -31,7 +31,7 @@ import { Button } from "../ui/button";
 import PermissionsGuard from "../resuable/permission-guard";
 import { Permissions } from "@/constant";
 import { useState } from "react";
-import useGetProjectsInWorkspaceQuery from "@/hooks/api/use-get-project";
+import useGetProjectsInWorkspaceQuery from "@/hooks/api/use-get-projects";
 import { PaginationType } from "@/types/api.type";
 
 export function NavProjects() {
