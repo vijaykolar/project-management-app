@@ -33,17 +33,24 @@ import { Permissions } from "@/constant";
 import { useState } from "react";
 import useGetProjectsInWorkspaceQuery from "@/hooks/api/use-get-projects";
 import { PaginationType } from "@/types/api.type";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteProjectMutationFn } from "@/lib/api";
+import { toast } from "@/hooks/use-toast";
 
 export function NavProjects() {
   const navigate = useNavigate();
   const location = useLocation();
   const pathname = location.pathname;
+  const { mutate, isPending: isDeletePending } = useMutation({
+    mutationFn: deleteProjectMutationFn,
+  });
 
   const { onOpen } = useCreateProjectDialog();
   const { context, open, onOpenDialog, onCloseDialog } = useConfirmDialog();
   const [pageNumber] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(5);
   const workspaceId = useWorkspaceId();
+  const queryClient = useQueryClient();
 
   const { data, isPending, isFetching, isError } =
     useGetProjectsInWorkspaceQuery({
@@ -58,7 +65,34 @@ export function NavProjects() {
   const pagination = data?.pagination || ({} as PaginationType);
   const hasMore = pagination?.totalPages > pagination.pageNumber;
 
-  const handleConfirm = () => {};
+  const handleConfirm = () => {
+    if (!context) return;
+    mutate(
+      { projectId: context._id, workspaceId },
+      {
+        onSuccess: () => {
+          onCloseDialog();
+
+          toast({
+            title: "Success",
+            description: "Project deleted successfully",
+            variant: "success",
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["allprojects", workspaceId],
+          });
+        },
+        onError: (error) => {
+          toast({
+            title: "Error",
+            description:
+              error.message || "An error occurred while deleting project",
+            variant: "destructive",
+          });
+        },
+      }
+    );
+  };
 
   const fetchNextPage = () => {
     if (!hasMore || isFetching) return;
@@ -175,7 +209,7 @@ export function NavProjects() {
 
       <ConfirmDialog
         isOpen={open}
-        isLoading={false}
+        isLoading={isDeletePending}
         onClose={onCloseDialog}
         onConfirm={handleConfirm}
         title="Delete Project"
