@@ -7,14 +7,14 @@ const CreateTaskDialog = (props: { projectId?: string }) => {
   return (
     <div>
       <Dialog modal={true}>
-        <DialogTrigger>
+        <DialogTrigger asChild>
           <Button>
             <Plus />
             New Task
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-lg max-h-auto my-5 border-0">
-          <CreateTaskForm projectId={props.projectId} />
+          <CreateTaskForm projectId={props.projectId!} />
         </DialogContent>
       </Dialog>
     </div>

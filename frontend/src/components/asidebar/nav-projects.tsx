@@ -110,7 +110,7 @@ export function NavProjects() {
               </PermissionsGuard>
             </div>
           ) : (
-            projects.map((item) => {
+            projects?.map((item) => {
               const projectUrl = `/workspace/${workspaceId}/project/${item._id}`;
 
               return (
