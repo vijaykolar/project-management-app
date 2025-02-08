@@ -1,4 +1,11 @@
-import { ArrowRight, Folder, MoreHorizontal, Plus, Trash2 } from "lucide-react";
+import {
+  ArrowRight,
+  Folder,
+  Loader,
+  MoreHorizontal,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
@@ -23,6 +30,9 @@ import useConfirmDialog from "@/hooks/use-confirm-dialog";
 import { Button } from "../ui/button";
 import PermissionsGuard from "../resuable/permission-guard";
 import { Permissions } from "@/constant";
+import { useState } from "react";
+import useGetProjectsInWorkspaceQuery from "@/hooks/api/use-get-project";
+import { PaginationType } from "@/types/api.type";
 
 export function NavProjects() {
   const navigate = useNavigate();
@@ -31,35 +41,30 @@ export function NavProjects() {
 
   const { onOpen } = useCreateProjectDialog();
   const { context, open, onOpenDialog, onCloseDialog } = useConfirmDialog();
-
+  const [pageNumber] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(5);
   const workspaceId = useWorkspaceId();
+
+  const { data, isPending, isFetching, isError } =
+    useGetProjectsInWorkspaceQuery({
+      workspaceId,
+      pageSize,
+      pageNumber,
+    });
 
   const { isMobile } = useSidebar();
 
-  const projects = [
-    {
-      id: "pro-383dh",
-      name: "Design Engineering",
-      emoji: "📊",
-      url: `/workspace/${workspaceId}/project/:pro-383dh`,
-    },
-    {
-      id: "p383dh",
-      name: "Sales & Marketing",
-      emoji: "📈",
-      url: `/workspace/${workspaceId}/project/:p383dh`,
-    },
-    {
-      id: "pro-wwhe",
-      name: "Travel",
-      emoji: "✈️",
-      url: `/workspace/${workspaceId}/project/:pro-wwhe`,
-    },
-  ];
-
-  const hasMore = true;
+  const projects = data?.projects || [];
+  const pagination = data?.pagination || ({} as PaginationType);
+  const hasMore = pagination?.totalPages > pagination.pageNumber;
 
   const handleConfirm = () => {};
+
+  const fetchNextPage = () => {
+    if (!hasMore || isFetching) return;
+
+    setPageSize((prev) => prev + 5);
+  };
   return (
     <>
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -76,7 +81,17 @@ export function NavProjects() {
           </PermissionsGuard>
         </SidebarGroupLabel>
         <SidebarMenu className="h-[320px] scrollbar overflow-y-auto pb-2">
-          {projects?.length === 0 ? (
+          {isError && (
+            <div className="pl-3">
+              <p className="text-xs text-muted-foreground">
+                An error occurred while fetching projects. Please try again.
+              </p>
+            </div>
+          )}
+          {isPending && (
+            <Loader className="animate-spin w-5 h-5 place-content-center" />
+          )}
+          {projects?.length === 0 && !isPending ? (
             <div className="pl-3">
               <p className="text-xs text-muted-foreground">
                 There is no projects in this Workspace yet. Projects you create
@@ -96,10 +111,10 @@ export function NavProjects() {
             </div>
           ) : (
             projects.map((item) => {
-              const projectUrl = item.url;
+              const projectUrl = `/workspace/${workspaceId}/project/${item._id}`;
 
               return (
-                <SidebarMenuItem key={item.id}>
+                <SidebarMenuItem key={item._id}>
                   <SidebarMenuButton asChild isActive={projectUrl === pathname}>
                     <Link to={projectUrl}>
                       {item.emoji}
@@ -124,14 +139,18 @@ export function NavProjects() {
                         <Folder className="text-muted-foreground" />
                         <span>View Project</span>
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        disabled={false}
-                        onClick={() => onOpenDialog(item)}
+                      <PermissionsGuard
+                        requiredPermission={Permissions.DELETE_PROJECT}
                       >
-                        <Trash2 className="text-muted-foreground" />
-                        <span>Delete Project</span>
-                      </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          disabled={false}
+                          onClick={() => onOpenDialog(item)}
+                        >
+                          <Trash2 className="text-muted-foreground" />
+                          <span>Delete Project</span>
+                        </DropdownMenuItem>
+                      </PermissionsGuard>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </SidebarMenuItem>
@@ -141,9 +160,13 @@ export function NavProjects() {
 
           {hasMore && (
             <SidebarMenuItem>
-              <SidebarMenuButton className="text-sidebar-foreground/70">
+              <SidebarMenuButton
+                disabled={isFetching}
+                className="text-sidebar-foreground/70"
+                onClick={fetchNextPage}
+              >
                 <MoreHorizontal className="text-sidebar-foreground/70" />
-                <span>More</span>
+                <span>{isFetching ? "Loading..." : "More"}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           )}
