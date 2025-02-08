@@ -12,8 +12,8 @@ import { useNavigate } from "react-router-dom";
 
 const DeleteWorkspaceCard = () => {
   const { open, onOpenDialog, onCloseDialog } = useConfirmDialog();
-  const { workspace, hasPermission } = useAuthContext();
-  const canDeleteWorkspace = hasPermission(Permissions.DELETE_WORKSPACE);
+  const { workspace } = useAuthContext();
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
