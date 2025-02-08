@@ -70,12 +70,12 @@ export function NavProjects() {
     mutate(
       { projectId: context._id, workspaceId },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           onCloseDialog();
 
           toast({
             title: "Success",
-            description: "Project deleted successfully",
+            description: data.message || "Project deleted successfully",
             variant: "success",
           });
           queryClient.invalidateQueries({
