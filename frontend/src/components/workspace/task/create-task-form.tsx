@@ -143,7 +143,6 @@ export default function CreateTaskForm(props: {
   const priorityOptions = transformOptions(taskPriorityList);
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values, { workspaceId: workspaceId });
     if (isPending) return;
 
     const payload = {
@@ -160,6 +159,9 @@ export default function CreateTaskForm(props: {
         queryClient.invalidateQueries({
           queryKey: ["project-analytics", projectId],
         });
+        queryClient.invalidateQueries({
+          queryKey: ["all-tasks", workspaceId],
+        });
         toast({
           title: "Success",
           description: "Task created successfully",
@@ -175,7 +177,6 @@ export default function CreateTaskForm(props: {
         });
       },
     });
-    onClose();
   };
 
   return (
