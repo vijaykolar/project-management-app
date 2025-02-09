@@ -50,7 +50,9 @@ const RecentMembers = () => {
                 <p className="text-sm font-medium text-gray-900">
                   {member.userId.name}
                 </p>
-                <p className="text-sm text-gray-500">{member.role.name}</p>
+                <p className="text-sm text-gray-500 capitalize">
+                  {member.role.name.toLowerCase()}
+                </p>
               </div>
 
               {/* Joined Date */}

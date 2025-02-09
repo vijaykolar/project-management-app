@@ -6,6 +6,7 @@ import {
 
 export type loginType = { email: string; password: string };
 export type LoginResponseType = {
+  access_token: string;
   message: string;
   user: {
     _id: string;
