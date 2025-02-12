@@ -52,7 +52,7 @@ const SignIn = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "test@test.com",
-      password: "123456789",
+      password: "test@test.com",
     },
   });
 
